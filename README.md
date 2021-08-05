@@ -9,7 +9,8 @@ https://githubtocolab.com/AgustinBustos/Tesis_Bella_Bonilla_Bustos/blob/d0df1496
 ## Secciones
 
 La notebook se divide en 5 secciones principales: Inicio, Preprocesamiento de Datos, Api, Modelos, Test.
-
 Se recomienda leer las acaraciones de las secciones para poder usar la seccion de Modelos y de Test en su maxima capacidad
+
+<hr/>
 
 Aclaracion: usamos las versiones actualizadas al dia 04/08/2021
