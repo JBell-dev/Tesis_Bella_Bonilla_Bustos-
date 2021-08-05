@@ -6,4 +6,4 @@ Los codigos no se encuentran en orden cronologico.
 
 ## Abrir en Google Colab
 
-*dataCode_1 : https://githubtocolab.com/AgustinBustos/Tesis_Bella_Bonilla_Bustos/blob/230f47b820851ee91a5cbad8fbb0622d3abf301c/data/codigos/dataCode_1.ipynb
+* dataCode_1 : https://githubtocolab.com/AgustinBustos/Tesis_Bella_Bonilla_Bustos/blob/230f47b820851ee91a5cbad8fbb0622d3abf301c/data/codigos/dataCode_1.ipynb
