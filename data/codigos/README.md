@@ -6,6 +6,8 @@ Los codigos no se encuentran en orden cronologico. Cuando se cargan los archivos
 
 'https://github.com/AgustinBustos/Tesis_Bella_Bonilla_Bustos/blob/0403b0a85f578fd1604c33fe2425b4c1e4287ae7/data/codigos/dataCode_1_Data/electricityconsumption1.csv?raw=true'
 
+Si no es posible encontrar la rawdata, todo los csv estan en https://data.london.gov.uk
+
 ## Abrir en Google Colab
 
 Para abrir las notebooks en el colab, en el link de la notebook, intercambiar 'github' por 'githubtocolab', por ejemplo:
