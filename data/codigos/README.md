@@ -10,6 +10,6 @@ Los codigos no se encuentran en orden cronologico. Cuando se cargan los archivos
 
 Para abrir las notebooks en el colab, en el link de la notebook, intercambiar 'github' por 'githubtocolab', por ejemplo:
 
-https://githubtocolab.com/AgustinBustos/Tesis_Bella_Bonilla_Bustos/blob/85b2ddef99261ec59a6d0dd03ffdcb70075fffc6/data/codigos/dataCode_1.ipynb
+https://githubtocolab.com/AgustinBustos/Tesis_Bella_Bonilla_Bustos/blob/0b69ddb51382d09ffc08f62d5a741caca2626b5e/data/codigos/prelearn.ipynb
 
 
