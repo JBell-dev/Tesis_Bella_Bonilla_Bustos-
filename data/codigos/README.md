@@ -8,6 +8,8 @@ Los codigos no se encuentran en orden cronologico. Cuando se cargan los archivos
 
 ## Abrir en Google Colab
 
-* dataCode_1 : https://githubtocolab.com/AgustinBustos/Tesis_Bella_Bonilla_Bustos/blob/85b2ddef99261ec59a6d0dd03ffdcb70075fffc6/data/codigos/dataCode_1.ipynb
+Para abrir las notebooks en el colab, en el link de la notebook, intercambiar 'github' por 'githubtocolab', por ejemplo:
+
+https://githubtocolab.com/AgustinBustos/Tesis_Bella_Bonilla_Bustos/blob/85b2ddef99261ec59a6d0dd03ffdcb70075fffc6/data/codigos/dataCode_1.ipynb
 
 
