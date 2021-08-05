@@ -9,6 +9,6 @@ para abrir un csv desde github, es necesario introducir ?raw=true al final del u
 
 ## Abrir en Google Colab
 
-* dataCode_1 : https://githubtocolab.com/AgustinBustos/Tesis_Bella_Bonilla_Bustos/blob/230f47b820851ee91a5cbad8fbb0622d3abf301c/data/codigos/dataCode_1.ipynb
+* dataCode_1 : https://githubtocolab.com/AgustinBustos/Tesis_Bella_Bonilla_Bustos/blob/85b2ddef99261ec59a6d0dd03ffdcb70075fffc6/data/codigos/dataCode_1.ipynb
 
 
