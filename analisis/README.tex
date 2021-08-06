@@ -1,0 +1,852 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\linespread{1.25}
+\pagestyle{fancy}
+\usepackage{times}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{setspace}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{isodate}
+\geometry{a4paper,margin=1in}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{booktabs} % for much better looking tables
+\usepackage{array} % for better arrays (eg matrices) in maths
+\usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
+\usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
+\usepackage{subfig} % make it possible to include more than one captioned figure/table in a single float
+\usepackage{fancyhdr} % This should be set AFTER setting up the page geometry
+\usepackage{hyperref}
+\pagestyle{fancy} % options: empty , plain , fancy
+\hyphenpenalty 10000 %para que no separe para la mierda
+\usepackage[hyphens]{url}
+\usepackage{hyperref}
+\usepackage{imakeidx}
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{titlepage}
+{\centering\includegraphics[width=0.4\textwidth]{logo dite}\par}
+\vspace{1 cm}
+\vspace{2.5cm}
+{\centering\sloppy\large\textit{IMPACTO DEL CAMBIO CLIMÁTICO SOBRE EL MERCADO DE BIENES RAÍCES: ANÁLISIS CONTRAFÁCTICO MEDIANTE EL MÉTODO DE CONTROL SINTÉTICO, MODELOS NO LINEALES Y MACHINE LEARNING}  \par}
+
+%\vspace{10.5cm}
+\vfill
+{\centering\large Jonatan Bella, Tomás Fernández Bonilla, Agustín Bustos Barton \par}
+{\centering\large Supervisor de Tesis: Emilio Espino \par}
+
+{\centering\large Departamento de Economía \par}
+{\centering\large Licenciatura en Economía \par}
+{\centering\large Agosto 2021 \par}
+\end{titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\clearpage
+\setcounter{page}{1}
+\renewcommand*\contentsname{Índice}
+\tableofcontents
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Resumen}
+\label{sec:Resumen}
+Este trabajo estudia los efectos de la creencia en el cambio climático sobre el precio de los inmuebles. Un sencillo modelo de \textit{pricing} de activos nos permite comparar la trayectoria de los precios en dos circunstancias distintas: Por un lado, tendremos la curva que describe al precio de un inmueble si los agentes son informados en un momento determinado que el activo valdrá cero en un futuro específico; por otro, la trayectoria de dicho activo si nunca recibe tal información. Esto sentará las bases para un análisis contrafáctico mediante el modelo de control sintético. Tomaremos la ciudad de Londres (rica en datos y en gran riesgo de daños considerables), para realizar un análisis econométrico. Compararemos la trayectoria de los precios en distintos territorios en situación de riesgo y territorios fuera de riesgo (es decir, entre distintos municipios londinenses llamados {$boroughs$}). Contaremos con datos referidos a los precios de los inmuebles según las transacciones realizadas y datos que tipifican a los distintos municipios (distribución demográfica, distribución del ingreso, etc.). A continuación, generamos una unidad sintética para realizar un análisis contrafáctico de cada municipio en situación de riesgo. Por último, utilizaremos métodos no lineales y \textit{machine learning} para optimizar la unidad sintética. Los resultados encontrados son heterogéneos, indicando las presencia de dos subgrupos de municipios afectados. Mientras algunos responden a nuestra hipótesis, ajustando la tasa de aumento de precios de los inmuebles, otros municipios afectados no presentan cambios significantes. Si bien los resultados podrían evidenciar el reticente esceptisísmo que perdura en cierto sector de la sociedad frente a las predicciones de los expertos climáticos, se debe tener en cuenta que esta falta de reacción pueda deberse a otros tipos de información y creencias, como la posibilidad de inversión en infrastructura preventiva por parte del sector público. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Aspectos Generales}
+\label{sec:Generales}
+
+\begin{figure}[H]
+\includegraphics[scale=0.45]{aspecgenimg/zonainun.PNG}
+\caption*{Territorio en riesgo de inundación para el año 2050 \footnotemark }
+\end{figure}
+\footnotetext{{ \textit{Costal risk screening tool}. Costal Climate Central [En linea]:  \url {https://coastal.climatecentral.org/map/11/-0.0516/51.5343/?theme=sea_level_rise&map_type=coastal_dem_comparison&basemap=roadmap&contiguous=true&elevation_model=coastal_dem&forecast_year=2050&pathway=rcp45&percentile=p50&refresh=true&return_level=return_level_1&slr_model=kopp_2014}}}
+
+
+El Cambio Climático y sus consecuencias económicas parecen ser inevitables: Aún suprimiendo drásticamente las emisiones de carbono en forma inmediata, los modelos predictivos auspician un aumento de 0.5 cm del nivel del mar. De no tomarse medidas, podría alcanzar los 2 cm.\footnotemark En el marco de un escenario semejante, reportes recientes proyectan un eventual desborde del río Támesis, poniendo en riesgo de destrucción total a miles de propiedades residenciales cuyo valor agregado de mercado alcanza los 224 billones de euros.\footnotetext{\textit{New elevation data triple estimates of global vulnerability to sea-level rise and coastal flooding.}Nature [En linea]:\\ \url{https://www.nature.com/articles/s41467-019-12808-z.pdf}} \footnotemark Esto posiciona a Londres como la tercera ciudad Europea cuyo mercado de bienes raíces residenciales se vería más afectado económicamente por aumentos en el nivel del mar. 
+
+\footnotetext{ \textit{Cost of rising sea-levels to coastal cities in Europe 2020, by temperature rise}. Statista [En linea]:
+\url{https://www.statista.com/statistics/1066944/estimated-cost-of-rising-sea-levels-to-select-coastal-cities-in-europe/}}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{aspecgenimg/statistalon.png}
+\caption*{Cost of rising sea-levels to coastal cities in Europe 2020, by temperature rise.
+“at the current rate of warming - 0.2C per decade - global warming
+will reach 1.5C between 2030 and 2052” \footnotemark}
+\end{figure}
+\footnotetext{Cost of rising sea-levels to coastal cities in Europe 2020, by temperature rise
+\url{https://www.statista.com/statistics/1066944/estimated-cost-of-rising-sea-levels-to-select-coastal-cities-in-europe/}
+}
+Desde 1980, las inundaciones en Londres se han cuadriplicado, y desde 2004 se han duplicado\footnotemark.
+Debemos considerar que las inundaciones urbanas no sólo son provocadas por el aumento del nivel del mar y por cambios en los patrones de precipitación; se deben a un variado conjunto de razones, incluyendo el crecimiento urbano y el aumento de zonas pavimentadas que impiden un drenaje natural.\footnotetext{\textit{New data confirm increased frequency of extreme weather events: European national science academies urge further action on climate change adaptation.} ScienceDaily [En linea]: \\ \url{https://www.msci.com/www/blog-posts/underwater-assets-real-estate/01593224766}} [Ashley \textit{et al.} 2005]\footnotemark.  El crecimiento de la población y el aumento de la densidad urbana constituyen un aumento en tales zonas. Si las expectativas racionales de los individuos consideran al cambio climático como una amenaza real, deberíamos esperar que los precios de los inmuebles ubicados dentro del perímetro en situación de riesgo se vean afectados de manera negativa. Es decir, tomando la hipótesis de mercados eficientes de Eugene Fama, el mercado de bienes raíces debiera incorporar nueva información con respecto a la valuación de terrenos que en el futuro estarán por debajo del nivel del mar y por lo tanto tendrán una valuación nula. Nos preguntamos cómo influyeron en el mercado de bienes raíces de Londres las pronosticadas consecuencias del Cambio Climático. ¿Ha tomado en cuenta el mercado los pronósticos de los expertos? 
+
+\footnotetext{R.M. Ashley*, D.J. Balmforth**, A.J. Saul* and J.D. Blanskby* \textit{Flooding in the future – predicting climate change, risks and responses in urban areas}.	}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{aspecgenimg/zonainun2.png}
+\caption*{Simulación predictiva para la ciudad de Londres en 2050\footnotemark}
+\end{figure}
+
+
+\footnotetext{\textit{Land projected to be below annual flood level in 2050}, ibidem.}
+%%%%%%%%%
+\subsection{El Cambio Climático como información y como creencia}
+Una encuesta realizada en Octubre del 2020 por el Consejo de Londres ha revelado que el 82\% de la población londinense dice estar preocupado por las consecuencias del cambio climático y un 52\% afirma que el cambio climático afecta la forma en la que toman decisiones.\footnote{\textit{What do Londoners' think about climate change?}. Consejo de Londres [En linea]: \url{https://www.londoncouncils.gov.uk/our-key-themes/environment/climate-change} } La problemática en cuestión ha comenzado a debatirse abiertamente en el mercado londinense.\footnote{FALTA ESTE LINK, falta desarrollar.}  
+
+Una brevísima historia del estudio del cambio climático debe comenzar con las primeras nociones del efecto invernadero, figuradas por Joseph Fourier en 1820, quien calculó que la radiación del Sol no era lo suficientemente fuerte como para justificar las temperaturas que en aquel entonces se experimentaban cotidianamente, llegando a la conclusión de que debía tratarse de un efecto atmosférico. En 1840 el naturalista suizo Louis Aggazis publica Estudio sobre los glaciares y a partir de entonces comienza a hallar evidencia a favor de la existencia de un periodo prehistórico de bajas temperaturas al que llamó era de hielo; nace así la historia natural de los cambios climáticos. Dos décadas más tarde, John Tyndall probaría que el efecto invernadero era producido por el vapor de agua y por el dióxido de carbono; esto condujo al nobel sueco Svante Arrhenius a argumentar por primera vez que el avance de la industrialización podría afectar las temperaturas del planeta. \footnote{\textit{Cómo descubrimos el problema del clima en}. Policy Forum [En linea]: \url{https://www.policyforum.net/how-we-discovered-the-climate-problem/}} En abril de 1938, la publicación de \textit{La producción artificial de dióxido de carbono y su influencia sobre la temperatura} por Guy Steward Callendar, daría comienzo a la historia del cambio climático producido por la actividad humana. Lo hace midiendo aumentos en la temperatura de los últimos años y midiendo el aumento en las emisiones de carbono, y el dióxido de carbono contenido en la atmósfera (Calendar, 1938)\footnote{Calendar, C.S. \textit{The artificial production of carbon dioxide and its influence on temperature.}[En linea]: \url{https://rmets.onlinelibrary.wiley.com/doi/abs/10.1002/qj.49706427503}}. En 1961, Charles David Keeling documentó un aumento estable en la acumulación de dióxido de carbono en la atmósfera, diagramando en una curva que hoy lleva su nombre:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.45]{aspecgenimg/curvadeK.png}
+\caption*{Curva de Keeling con datos del observatorio Mauna Loa en Hawaii.}
+\end{figure}
+
+En la década de los noventas, el debate en torno al agujero en la capa de ozono sitúa al cuidado del medio ambiente en un lugar central de la opinión pública; es en esta década que se acuña el término \textit{eco-warrior} y \textit{eco-terrorist} a para tipificar a los activistas medioambientales que comienzan a tomar posturas cada vez más radicales.\footnote{\textit{Eco-warrior}, Wikipedia [En linea]: \url{https://en.wikipedia.org/wiki/Eco-warrior}} Sin embargo, no es hasta el estreno de la película Una Verdad Incómoda del ex vicepresidente americano Al Gore en el año 2001, que el cambio climático (hasta entonces confundido con el término calentamiento global) comienza a ocupar un lugar cada vez más dramático en la percepción popular del \textit{mainstream}. A partir de entonces notamos un crecimiento acelerado de las menciones que se hacen en torno al cambio climático en diversas publicaciones, como podemos ver en los datos provistos por el \textit{Ngram Viewer} de Google.
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.35]{aspecgenimg/search.png}
+\caption*{Google Book Ngram Viewer\footnotemark}
+\end{figure}
+
+\footnotetext{Google Book Ngram Viewer [En linea]:\url{https://books.google.com/ngrams/graph?content=climate+change\%2Cglobal+warming\%2Cgreenhouse+effect&year_start=1900&year_end=2019&corpus=26&smoothing=0#}}
+
+Si bien hoy en día, la gran mayoría de las personas han oído hablar del cambio climático, la recepción de esta nueva información ha sido más bien heterogénea. Fácilmente podemos encontrarnos con alarmistas, realistas y escépticos. Últimamente se ha encontrado evidencia que sugiere que las encuestas tienden a subestimar el nivel de escepticismo climático.\footnote{Liam F. Beiser-McGrath,Thomas Bernauer. \textit{Current surveys may underestimate climate change skepticism evidence from list experiments in Germany and the USA.} [En linea] \url{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0251034}} También se ha encontrado que el público en general tiene problemas entendiendo las consecuencias del aumento del nivel del mar y su conexión con el cambio climático.\footnote{Rebecca K. Priestley, Zoë Heine, Taciano L. \textit{Milfont Public understanding of climate change-related sea-level rise}.[En linea]: \url{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0254348}}. Recientemente (Baldauf \textit{et al.} 2020) \footnote{Baldafur,M. Garlappi,L. Yannelis,C. \textit{Does Climate Change Affect Real Estate Prices? Only If You Believe In It} The Review of Financial Studies, 2020. [En linea]:\url{https://academic.oup.com/rfs/article-abstract/33/3/1256/5735306?redirectedFrom=fulltext}} se ha analizado cómo el impacto en los precios de las residencias de Miami depende de las creencias de los ciudadanos;  es decir, los autores estudian si los precios de los inmuebles reflejan las diversas creencias de los agentes. Con una encuesta previa que les permite distinguir sectores creyentes y sectores escépticos, encuentran que en los territorios donde los agentes confían en los expertos podemos encontrar una caída en los precios del m² de las zonas afectadas, mientras que en los territorios donde los agentes son escépticos frente a los pronósticos de los expertos, los precios no se han visto afectados. Vale subrayar que los autores encuentran una marcada correlación entre territorios que confían en el consenso científico climático y territorios donde el partido demócrata logra mayor cantidad de votos, como así los territorios con mayor cantidad de escépticos tienden a ser territorios donde el partido republicano logra una mayoría de votos. Esta variable político-cultural no se encuentra sola a la hora de afectar las creencias. El escepticismo también es heterogéneo entre las diversas generaciones. Mientras las juventudes tienden al alarmismo climático, representadas por Gretta Thumberg, sus progenitores tienden al escepticismo. En Estados Unidos, la encuestadora Gallup encontró que sólo el 53\% de los mayores de 55 años estaba preocupado por el cambio climático; por otro lado, el 70\% los encuestados entre 18 y 34 años de edad expresaron preocupación por la crisis venidera.\footnote{\textit{Global warming age gap}. Gallup [En linea]: \url{https://news.gallup.com/poll/234314/global-warming-age-gap-younger-americans-worried.aspx}} En los próximos años se espera la mayor transferencia de riquezas en la historia; a medida que los llamados \textit{Millenials} (nacidos entre 1980 y 1994) hereden la riqueza de los antecesores (los \textit{Baby Boomers} nacidos entre 1946 y 1964), es esperable que las preferencias y creencias de la demanda de inmuebles se vaya adaptando. 
+
+ Existe literatura aún en desarrollo que presenta un enfoque similar al propuesto (Keys y Mulder, 2020). En él se realiza un análisis por control sintético de los precios de inmuebles en Miami. Si bien el trabajo hace hincapié en una primer caída en el volumen de transacciones que luego se ve reflejada en los precios, la conclusión de los autores anticipa un aumento en el pesimismo climático por parte de la demanda. La inclusión del mercado de hipotecas les permite constatar que no se debe a un cambio en el acceso a líneas de crédito. Por otro lado, encuentran que en los barrios más carenciados afectados por el aumento del nivel del mar, los precios de los inmuebles se ven más afectados que en aquellos barrios con mayores ingresos que también se encuentran en riesgo de inundación.\footnote{Benjamin J. Keys y Philip Mulder. \textit{Neglected No More: Housing Markets, Mortgage Lending, and Sea Level Rise}}	
+Por otro lado, la consultora MSCI ha desarrollado un informe en el cual señala que si bien la Barrera del Thamesís protege a la Londres Central (City of London, Holborn, Soho, etc.), otros sectores se ven muy perjudicados; como el municipio de Lewisham, que cuenta con el 35\% de sus activos (según su valor capital) en situación de riesgo.\footnote{\textit{Underwater assets? Real estate exposure to flood risk} MSCI [En linea]: \url{https://www.msci.com/www/blog-posts/underwater-assets-real-estate/01593224766 }} La Barrera del Thames constituye la mayor inversión en infraestructura de Inglaterra para hacerle frente a la crisis climática y al desborde del Támesis. Se trata de la barrera movible para prevención de inundaciones más grande del mundo y  comenzará sus pruebas a partir del 11 de agosto de 2021.\footnote{\url{https://www.gov.uk/guidance/the-thames-barrier}} El éxito de dicho empréstito puede alterar la percepción del público respecto a futuras inversiones en infraestructura.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.35]{aspecgenimg/Thames_Barrier_crop.jpeg}
+\caption*{La Barrera del Támesis}
+\end{figure}
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
+
+\section{Descripción del modelo teórico}
+\label{sec:Descripcion}
+
+Intuitivamente, al aumentar la población y al ser constante la extensión de las tierras disponibles, el precio de estas últimas debe aumentar a medida que aumenta la población. Es decir, mientras la oferta de \textit{stock} de tierras se mantiene inalterada, la demanda de tierras aumenta a medida que aumenta la población. Consideraremos a la tierra como un activo cuyos dividendos se perciben en forma de renta (alquileres). Si bien el precio de la tierra es de una naturaleza bastante más compleja (el precio de la tierra también refleja su valor como activo colateral, su capacidad productiva, contiene un efecto de redes dependiendo de los vecinos y la infraestructura del barrio, etc.), parece ser una simplificación justificada para el estudio de nuestro caso: sencillamente consideramos una oferta constante y un aumento en la demanda agregada.
+En un determinado punto de corte se introduce la nueva información. Esta nueva información determina que en un momento específico del futuro, el activo será destruido. Compararemos dos trayectorias: Por un lado, la evolución del precio de la tierra donde en un determinado momento se informa que en el futuro dicho territorio sufrirá un daño irreparable y su precio caerá a cero; por otro lado, observaremos la evolución del precio de la misma tierra sin la nueva información, es decir, la trayectoria contrafáctica. 
+%%%%%%%%%%%%%%%%%%%
+\subsection{Estructura}
+\item La demanda agregada de tierra es:
+\begin{equation}
+D_t= \sum_{i \in I_t}{T^{d}_{i,t}}
+\end{equation}
+Donde  {$I_t$}  representa el conjunto de demandantes en el mercado de tierras en el momento t, y {$T_i$}, {$t_d$} es la demanda individual de tierras del individuo i en el momento t.
+
+\item La utilidad de cada individuo es:
+\begin{equation}
+D_t= \sum_{t=0}^{\infty}{\beta^{t}u_t}
+\end{equation}
+Donde la utilidad por unidad de tiempo es: {$u_t=T_tO_t$} \\
+T representa la cantidad alquilada de unidades de tierra, y O representa la cantidad consumida de los bienes restantes.
+
+\item La oferta agregada de tierras es:
+\begin{equation}
+S_t=K
+\end{equation}
+Donde K es una constante.
+
+
+\item Suponemos que el parámetro  de descuento genera un ahorro nulo en equilibrio.
+
+\item Normalizamos el vector de precios de los otros bienes, y suponemos un ingreso constante sin capacidad de ahorro:
+\begin{align*}
+p_{t}^{0}=1 \\   \forall t \in N
+\end{align*}
+Por lo tanto la restricción presupuestaria flujo de los individuos es:
+\begin{align*}
+alq_tT_t + O_t = M
+\end{align*}
+Donde M es una constante, y {$alq_t$} es el precio de alquiler de la tierra. 
+\item La población crece a una tasa exponencial, por lo tanto:
+\begin{align*}
+cardinal(I_t) = L^t
+\end{align*}
+Donde L es una constante.
+\item Para simplificar, suponemos que {$\frac{M}{2K} = 1$}
+\item  Se cumplen los argumentos de no arbitraje.
+\newpage
+\subsection{Equilibrio parcial}
+Un equilibrio competitivo es un conjunto de precios \{{$alq_t|t \in N$}\}  tal que {$S_t=D_t$} {$\forall t \in N$}, donde los individuos demandan maximizando su utilidad dados los precios.
+%%%%%%%%%%%%%%%%!!!!!!!!
+\item Problema del agente:
+\begin{align*}
+
+\max_{\below{\left\{T_t,O_t\right\}}}{U}\ sujeto  \   a\ \ {alq}_tT_t+O_t+{ahorros}_{t+1}=M+{ahorros}_t\ \forall\ t\in\mathbb{N}
+
+\end{align*}
+Por conclusión de los supuestos antes mencionados, solo debemos maximizar la utilidad para cada momento t:
+\begin{align*}
+
+\max_{\below{\left\{T_t,O_t\right\}}}{u_t}\ sujeto \  a\ {\ \ \ alq}_tT_t+O_t=M
+
+\end{align*}
+%%%%%%%%%%%%%%%%!!!!!!!!
+Por lo tanto, dado un momento t, el lagrangiano del problema es:
+
+\begin{align*}
+L_t = T_tO_t - \lambda_{t}(alq_tT_t + O_t - M)
+\end{align*}
+
+Se obtiene la siguiente demanda marshalliana de la tierra:
+
+\begin{align*}
+T_{t}^{d} = \frac{M}{2alq_t}
+\end{align*}
+
+Como todos los individuos son iguales, la demanda agregada es:
+
+
+\begin{align*}
+D_{t} = \sum_{i \in I_t}{T^{d}_{i,t}}
+\\
+D_t = cardinal(I_t)T^{d}_t
+\\
+D_t = L_t \frac{M}{2alq_t}
+\end{align*}
+
+
+En el equilibrio, se cumple que St=Dt, por lo tanto:
+
+\begin{align*}
+S_t = D_t
+\\
+K = L^t\frac{M}{2alq_t}
+\\
+alq_t = L^t \frac{M}{2K}
+\end{align*}
+
+Como {$\frac{M}{2K} = 1 $}, vemos que:
+
+\begin{align*}
+alq_t=L_t
+\end{align*}
+
+\subsection{Precio de los inmuebles}
+Los inmuebles pueden ser considerados como un activo que paga dividendos en forma de alquiler, por lo tanto, bajo el supuesto de no arbitraje, sabemos que el precio del bien está dado por la sumatoria de todos los alquileres futuros descontados por la tasa de interés:
+\begin{align*}
+precio_t = \sum_{j=0}^{\infty}{\frac{alq_{t+j}}{(1+i)^j}}
+\end{align*}
+Donde i es la tasa de interés.
+
+\subsection{Desenlace teórico y su contrafactual}
+Sea un inmueble w, un bien que sigue los supuestos expresados anteriormente, su precio va a ser:
+
+\begin{align*}
+precio_t = \sum_{j=0}^{\infty}{\frac{alq_{t+j}}{(1+i)^j}}
+\end{align*}
+
+Sin embargo, en  t=0 obtenemos la información de que en el momento F, el inmueble se ve afectado por las inundaciones y no será de utilidad para ningún individuo, por lo tanto, el alquiler que paga el inmueble a partir de F será nulo:
+
+\begin{align*}
+alq_t = 0  \\  \forall  t \geq F  
+\end{align*}
+Por lo tanto, el precio nuevo dada la mismo inmueble w, va a ser:
+
+\begin{align*}
+precio_{t}^{nueva \ info} = \sum_{j=0}^{F-t-1}{\frac{alq_{t+j}}{(1+i)^j}}
+\end{align*}
+
+Sabemos que:
+
+\begin{align*}
+alq_t = L_t
+\end{align*}
+
+Por lo tanto tenemos las siguientes expresiones para los precios:
+
+\begin{align*}
+precio_t = \frac{L^t}{1-\frac{L}{1+i}}
+\\
+precio_{t}^{info \ nueva} =(1+i)L_t \frac{1 - (\frac{L}{1+i})^{F+1-t}}{1+i-L}
+\end{align*}
+A continuación, graficamos estas dos ecuaciones:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.35]{desc/estruct.png}
+\end{figure}
+
+Donde el eje de abscisas representa el tiempo y el eje de ordenadas representa el precio; la curva gris es el precio de la vivienda sin nueva información, el caso placebo en el que no existe un informe climático que alerte sobre daños futuros; finalmente, la curva negra representa el precio de la vivienda en el caso de que los agentes incorporen la nueva información, siendo esta que el valor del inmueble en el punto F será nulo. Si la información se obtiene en el momento t=0, entonces el precio salta discretamente de la curva gris a la Negra en t=0, y de allí en adelante, la curva gris va a representar el contrafáctico de la casa si nunca se inundara en el futuro. 
+Nuestro trabajo va a consistir en estimar el precio contrafáctico donde el inmueble nunca se inunda (dado por la curva gris) y luego comparar su diferencia con el precio real de la casa que se informa se va a inundar (curva negra), por lo tanto, en este caso:
+%%%%%%%%%%%%ª!!!!!!!!!!!!!!!!!!!!!!
+\begin{align*}
+precio \ real_{t} = \frac{L^t}{1-\frac{L}{1+i}}   \    si \ t < 0 ,cambiar \ si \ t \geq 0  %%%%%%%
+\\
+precio \ contrafáctico_t = \frac{L^t}{1-\frac{L}{1+i}} 
+\end{align*}
+
+Si encontramos una diferencia significativa entre el precio contrafáctico y su precio real podemos inferir que los agentes están incorporando la nueva información y descontando del precio de adquisición la inundación de los inmuebles en el futuro.
+
+Tomando el logaritmo de la diferencia entre el precio real y el contrafáctico, obtenemos:
+
+\begin{align*}
+\ln{({precio \ contrafáctico}_t - {precio \ real}_t)} = \ln{(\frac{HL^{F+1}}{(1+i-L)(1+i)^F})} + \ln(1+i)t
+\end{align*}
+donde:
+\begin{align*}
+\frac{M}{2K} = H
+\end{align*}
+
+Esto quiere decir que si calculamos una regresión lineal del logaritmo de la diferencia contra el tiempo, el beta de la regresión va a ser:
+
+\begin{align*}
+\beta=\ln(1+i) \approx i
+\end{align*}
+
+Es decir, una vez que tengamos nuestra estimación del contrafáctico, vamos a calcular una regresión sobre el logaritmo de la diferencia, y vamos a tomar a la ordenada al origen como el salto discreto por la actualización de la información, y la pendiente como la tasa con la que los agentes descuentan la inundación.
+\pagebreak
+\section{Control Sintetico}
+\label{sec:Sintetico}
+
+El método de control sintético es una generalización poderosa, y aún así relativamente sencilla, del método de diferencias en diferencias; permite evaluar cuantitativamente los efectos de un tratamiento específico sobre una unidad tratada mediante la creación de una unidad “sintética” contrafactual que no ha sido tratada. A grandes rasgos, los modelos de control sintético eligen un conjunto de ponderaciones óptimas que al aplicarlas al grupo correspondiente de unidades, produce una unidad contrafactual. Esta unidad sintética es comparada con la unidad tratada para capturar el efecto. 
+
+El efecto causal de un evento como el estudiado es determinado por la diferencia entre sus resultados potenciales; es decir, la diferencia entre el caso donde un municipio se ve afectado por los pronósticos de inundaciones contra el caso de la misma unidad, pero sin pronósticos. Como esto plantea que existan una misma unidad, pero bajo dos escenarios distintos al mismo tiempo, tenemos el problema de que uno de ellos no va a existir y para eso tenemos que construir su contrafactual.
+\subsection{Litertura}
+
+
+El método de control sintético fue diseñado por el economista vasco Alberto Abadie del MIT. En 2003, Abadie y Gardeazabal utilizaron dicho método contrafáctico para analizar el costo económico de los conflictos políticos internos del País Vasco. Los autores se preguntan cuál sería el ingreso per cápita de los habitantes de la comunidad autónoma si la organización separacionista E.T.A. no hubiera aterrorizado a la población local. En 2010, Abadie, Diamond y Hainmuller publican Synthetic Control Methods for Comparative Case Studies: Estimating the Effect of California’s Tobacco Control Program donde estudian las caídas en las ventas de cigarrillos una vez implementadas políticas públicas que desincentivan su consumo.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.35]{sinte/recorte.png}
+\end{figure}
+
+Los autores notan una caída abrupta del consumo en comparación con el contrafáctico sintético generado a partir de estados en los que no se aplicó el programa. En 2014 los autores mencionados publican Comparative Politics and the Synthetic Control Method  donde, mediante el método de control sintético, analizan el impacto económico de la reunificación de Alemania ocupada en 1990. Los autores encuentran un menor crecimiento de Alemania Occidental tras la reunificación al compararlo con la unidad sintética. Con el tiempo, el método de control sintético ha ido ganando popularidad, al punto de que en el 2017 los economistas Athey e Imbens han escrito “the synthetic control approach developed by Abadie et al. [2010, 2015] and Abadie and Gardeazabal [2003] is arguably the most important innovation in the policy evaluation literature in the last 15 years”.
+
+\subsection{Control Sintetico}
+Se propone una forma de construir el contrafactual con el fin de estimar el efecto, como podemos ver de la siguiente ecuación:
+
+\begin{align*}
+    Y_{it} = \alpha_{it}D_{it} + Y^{N}_{it} = \alpha_{it}D_{it} + \theta_{t}Z_{i} + \lambda_{t}\mu_{i} + \delta_{t} + \epsilon_{it}
+\end{align*}
+
+El efecto que se observa es el precio del inmueble {$Y_{it}^{N}$}, más el efecto del cambio climático {$i_t$} con su correspondiente variable dicotómica {$D_t$}.
+
+Puede uno pensar que la situación sin tratamiento es también la suma de factores observables e inobservables que están afectando a la variable de interés y estas son las que necesitamos para construir el contrafactual. Ahora, se podría utilizar un caso parecido – un match – que se acerque lo más posible a estas características para poder usarlo de contrafactual, pero también se podría usar el control sintético. Este consiste en tomar de un pool de unidades de control y promediarlas de forma tal que dicho promedio se asemeje al comportamiento de la variable de resultado de la unidad tratada previo al tratamiento. Es así como construimos los pesos {$w_j^*$}. De esta forma, si construimos promediando casos no tratados pero que, en conjunto, se asemeja a la unidad tratada podemos usarla para predecir el comportamiento del estado tratado contrafactual y, por lo tanto, estimar la diferencia entre ambos, que se puede interpretar como el efecto causal de la política.
+
+\begin{align*}
+    \hat{\alpha_{1t}} = Y_{1t} - \sum_{j=2}^{J+1}{w_{j}^{*}Y_{jt}}
+\end{align*}
+
+\subsection{Elección del año de corte: 2008}
+El método de control sintético requiere de un punto de corte donde comienzan a compararse la unidad tratada y la unidad placebo sintética. Hasta dicho punto, la trayectoria de la unidad tratada funciona como referencia para poder construir y fittear la unidad sintética. En el caso de un evento a estudiar (como ser la reunificación de Berlín en Abadie et al.) o el efecto de una política pública puntual (sea el caso de un aumento en el salario mínimo como en Dube y Zipper) el punto de corte es sencillo de establecer: basta con señalar el año del evento a estudiar o la fecha en la cual se aplicó dicha política pública.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.35]{sinte/googletrends.png}
+\caption*{Interés a lo largo del tiempo del ‘tema’ Cambio Climático en Google Trends con punto máximo en 2007.}
+\end{figure}
+
+En nuestro caso, evaluamos respuestas del mercado inmobiliario frente a nueva información respecto a eventos futuros. Es difícil establecer cuando la población londinense tomó conciencia de que su territorio se enfrentaba a las consecuencias del cambio climático. En el año 2001, la película {$ Una \ verdad \ incómoda$} de Al Gore llevó la discusión del clima al público mainstream. A partir de allí notamos un crecimiento acelerado de menciones del tema en todo tipo de publicaciones. Acorde a los datos de google trends, el volumen de búsquedas respecto al tema (ya sea “cambio climático” o el mal llamado “calentamiento global”) alcanza su mayor magnitud el año 2007. Podemos suponer que para este año, la gran mayoría de las personas ya habían escuchado hablar del tema. Este dato concuerda con los resultados de la encuesta realizada por Yale sobre concientización de la problemática. 
+El otro punto a considerar es la crisis de subprime que estalló en el año 2008. Al tratarse de una burbuja inmobiliaria, es de vital importancia tener en cuenta las consecuencias de dicho evento. Suponemos que al caer los precios, tras estallar la burbuja, el mercado inmobiliario debió corregir sus precios. Es cierto que dadas las circunstancias, el mercado puede realizar una sobre corrección empujando los precios por debajo de su valor al tratarse de circunstancias altamente volátiles. Consideramos, sin embargo, que tanto los datos presentados acerca de la opinión pública por un lado, y el estallido de la burbuja inmobiliaria por el otro, nos permiten realizar el corte en dicho momento.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.35]{sinte/trend2.png}
+\caption*{Interés a lo largo del tiempo del Término de búsqueda “Global Warming” en Google Trends.}
+\end{figure}
+\pagebreak
+\section{Machine Learning}
+\label{sec:Machine Learning}
+
+El método de Machine Learning, desde el punto de vista del aprendizaje supervisado, consiste en programar computadoras para optimizar cierto criterio de performance (por ejemplo, minimizando el error cuadrático medio) usando datos o experiencia pasada como materia prima. De esta manera, es posible encontrar patrones y realizar predicciones que bajo métodos lineales sería imposible detectar. Actualmente dichos métodos se aplican tanto en instituciones financieras para predecir riesgo crediticio, condiciones climáticas, medicina, robótica, traducción, autos autónomos, entre otros. Cabe aclarar que este tipo de métodos requiere una abundante cantidad de datos para realizar predicciones más consistentes, ya que se dificulta encontrar patrones cuando los datos son pocos. Hal Varian, economista jefe de Google a dicho: “... my advice to grad (Economics) these days is ‘go to the computer science department and take a course in machine learning’”.\footnote{\url{https://people.ischool.berkeley.edu/~hal/Papers/2013/ml.pdf} - Hal R. Varian - Big Data: New Tricks for Econometrics - June 2013
+}
+
+\subsection{Modelo K-vecinos}
+
+Considerando que es posible definir la variable de respuesta como {$Y = f(X) + \varepsilon$} 
+
+Dado una muestra Sn: {$\{(X_1Y_1),...(X_nY_n)\}$} y un parámetro {$k\ \epsilon\ N $}. Llamamos a X como vector de features continuos. De este modo, para cualquier {$x\ \epsilon\ X$}, llamamos {$d_k(x,Sn)\ \equiv\ d_k(x)\ $} a la distancia (Euclidiana) desde x hasta su k-vecino mas cercano de entre los elementos de {$S_n$}. Si por ejemplo, {$d1(x)\ =\ {min}_{i\ =\ 1,...n}||\ x_i\ -\ x\ || $}.
+
+Definimos {$ N_k(x)\ =\{j\ \epsilon\ \{ \ 1,...,\ n\}\ |\ ||\ x_j\ -\ x\ ||\ <\ d_k(x)\} $}, luego 
+\begin{align*}
+\widehat{f(x)}\ =\ \frac{1}{k}\sum_{i\ \epsilon\ N_k(x)} y i
+\end{align*}
+
+De este modo, el algoritmo estima la función en el punto X = x, haciendo un promedio local basado en los k – vecinos mas cercanos de X = x. 
+A este método como a la mayoría de los métodos de machine learning, se le incorporan estrategias de validación cruzada para estimar el error asociado al modelo. Esto nos permite evaluar su capacidad predictiva (el fin ultimo del modelo). 
+
+\subsection{Método de Kernel}
+
+Un núcleo o kernel K: {$ \mathbb{R}^Px\ \mathbb{R}^p\ ->\ \mathbb{R} $} es una manera de computar productos internos entre observaciones proyectadas en un espacio de alta dimensión. De este modo, considerando ,{$ X = {(x}_1x_2) \ y \  X’ = {(x\prime}_1{x\prime}_2) $}, luego:
+
+\begin{align*}
+\phi^{T}(x)\phi(x') = x^{2}_{1}x'^{2}_{1} + x^{2}_{2}x'^{2}_{2} +  2x_{1}x'_{1}x_{2}x'_{2}
+\\
+\phi^{T}(x)\phi(x') = {(x_{1}x'_{1} + x_{2}x'_{2})}^{2}  
+\\
+\phi^{T}(x)\phi(x') = K(x,x')  \ \ \forall \ i,j = 1,..n
+\end{align*}
+
+De esta forma, el método nos permite transformar problemas no lineales en formas lineales, ya que se puede demostrar que de la minimización del riesgo empírico, donde, dado {$ \varphi\ $} y la muestra de entrenamiento {$ \{( \varphi(x_1),y_1),\ldots(\varphi(x_n),y_n) \} $} ,el modelo {$ Y = W^T\varphi(x)\ +\ \varepsilon $} es tal que minimizando la funcion de riesgo empirico:
+
+\begin{align*}
+RE(w,\lambda) = \frac{1}{2n}(y - X_{\varphi}w)^{T}(y - X_{\varphi}w) + \frac{\lambda}{2}{||w||}^{2}
+\end{align*}
+
+Se obtiene que {$\widehat{y_n}=\ \sum_{i\ =\ 1}^{n}{\alpha_iK(x_{new},x_i)}$}
+
+\subsection{Redes Neuronales Clasicas}
+
+Los modelos de redes neuronales se caracterizan por una arquitectura formada por capas y “neuronas” en cada una de ellas. En cada una de estas neuronas residen funciones de activación que determina el output de cada neurona dado un conjunto de inputs de otras neuronas en una capa inmediatamente anterior. Los parámetros permiten a la red aprender de los datos de entrenamiento y eventualmente hacer predicciones. Por último, el algoritmo de entrenamiento nos permite ajustar los parámetros de la red para que aprenda a predecir la variable de interés. 
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.35]{sinte/redes.png}
+\end{figure}
+
+Para describir el proceso en la cada de entrada encontramos las covariables del problema, esta a su ves son conectadas a la siguiente capa ponderadas por su respectivo peso (parámetro del modelo). Estos pesos (que podemos pensarlos como los parámetros de una simple función lineal compuesta por dichas Xs como inputs y {$\beta_s$} como parámetros) son el input de la neurona i-esima en la primera capa. Allí, el modelo lineal es transformado mediante una función de activación, que podemos llamar {$ \sigma(U),\ donde\ U\ =\ \sum_{j=0}^{p}{\beta_jX_j} $}. Tanto el numero de capas como el de neuronas dependerá de como el analista diseñe la arquitectura de la red, y será una de las tantas variables para tener en cuenta en el fitting del modelo. El output de la función de activiacion i-esima pasa a cada una de las siguientes neuronas en la siguiente capa ponderada por el peso correspondiente. La cantidad de estos procesos depende nuevamente de la arquitectura diseñada. 
+Los parámetros (pesos) se ajustan para optimizar la capacidad predictiva dado un criterio seleccionado (por ejemplo, si calculamos el error mediante el error cuadrático medio, querríamos reducir este al mínimo posible, pero siempre manteniendo un conjunto de validación que nos permita ver que tanto ajusta el mismo en espacio de features sobre el que nunca recibió información), mediante el descenso del gradiente, buscamos el mínimo de la función de perdida seleccionada. Por otra parte, existen diversas funciones de activación que también forman parte del diseño de la red.
+\pagebreak
+\section{Control Sintético + Machine Learning}
+
+\label{sec:sint+machine}
+
+Nuestro objetivo principal es generalizar el modelo de estimación del contrafáctico al tipo de modelos predictivos usados en la disciplina del ‘machine learning’. A la hora de estimar el contrafáctico, el control sintético presenta dos características que (bajo ciertas condiciones) pueden presentar mayor cantidad de desventajas que de ventajas, estas características son la extrapolación, y la linealidad. El uso de modelos predictivos puede llegar a disminuir el error de estimación lo suficiente como para realizar inferencia cuantitativa sobre los estimadores, es decir, al final del día vamos a obtener una distribución de probabilidad sobre el impacto de la información del cambio climático en el precio de las casas en Londres.
+
+\subsection{Métodos Predictivos: Principales ventajas y desventajas del control sintético.}
+\subsubsection{Extrapolación}
+El control sintético presenta dos características que limitan la extrapolación de las predicciones:
+
+a. No presenta una ordenada al origen (bias=0).
+
+b. Los pesos no pueden ser mayores a 1 ni menores a 0
+  
+  {$\sum_{i\in d o n o r\ pool}{{weights}_i=1\ \ }, \ {weights}_i\in\left[0,1\right]\ \forall i\in donor\ pool $}.
+
+Estas restricciones nos dan la ventaja de poder filtrar las estimaciones ‘outliers’ según su nivel en el output y así evitar sesgos. Por ejemplo, si tuviéramos que crear el control sintético de una casa situada en Londres, y la donor pool estuviera conformada por dos casas, una situada en Londres de precio similar y otra situada en algún barrio de bajos recursos en Estados Unidos tal que su precio es un cienavo del precio de la vivienda tratada, no sería preciso estimar el precio del contrafactico como {$ y_{contrafactico}=\frac{y_{Londres}+100y_{USA}}{2} $} ya que el precio de la casa de estados unidos no puede ofrecer ningún tipo de información sobre el contrafactico (estamos comparando una mansión de Londres con una choza de Estados Unidos).
+También funciona como método de regularización, puede verse como un modelo Lasso con una restricción adicional
+{$ ({weights}_i\in\left[0,1\right]\ \forall i\in donor\ pool) $} , pero sin ningún hiperparametro.
+En este trabajo, vamos a prestar atención especial a los ‘outliers’ filtrados por el control sintético, pero vamos a permitir el uso de la extrapolación para aumentar la capacidad de complejidad en la función predictora.
+Este tipo de filtrado es una técnica heurística conocida del ‘data engineering’ en la cual se corren los modelos antes de trabajar con el preprocesado de datos para obtener pistas sobre posibles outliers.
+
+\subsubsection{Linealidad}
+Como estimación del precio contrafactico, el método del control sintético va a hacer un promedio ponderado de los precios de la donor pool:
+\begin{align*}
+    {\hat{y}}_{contrafactico}=\sum_{i\in d o n o r\ pool}{w_iy_i}
+\end{align*}
+Esta fórmula es una extensión lineal del método de matching en la que se crea un control usando un promedio de los objetos macheados, una gran ventaja que tiene es su interpretabilidad, cuando construimos el sintético, podemos verificar el valor de cualquier otra variable contra su sintético, por ejemplo, sea hab la cantidad de habitaciones en una casa, podemos obtener la cantidad de habitaciones en el sintético usando los mismos pesos: 
+\begin{align*}
+    {hab}_{contrafactico}=\sum_{i\in d o n o r\ pool}{w_i{hab}_i}
+\end{align*}
+Pero el problema es el mismo que en el punto anterior, aumentar la capacidad en la complejidad del modelo puede disminuir la varianza en los estimadores.
+
+\subsection{Varianza de los estimadores y complejidad potencial}
+
+El cambio que vamos a hacer en los supuestos es muy directo, anteriormente, ya estaba demostrado\footnote{Synthetic Control Methods for Comparative Case Studies: Estimating the Effect of California’s Tobacco Control Program. \url{https://economics.mit.edu/files/11859}} que, bajo ciertas condiciones, el estimador del control sintético no está sesgado, en otras palabras:
+\begin{align*}
+    {\hat{y}}_{contrafactico}=y_{contrafactico}+\varepsilon
+\end{align*}
+Donde {$ \mathbb{E}\left\{\varepsilon\right\}=0 \ y \ Var\left(\varepsilon\right)=\sigma^2. $}
+Por lo tanto:
+\begin{align*}
+    y_{contrafactico}=\sum_{i\in d o n o r\ pool}{w_iy_i}+u
+\end{align*}
+Donde {$ \mathbb{E}\left\{u\right\}=0 \ y \ Var\left(u\right)=\sigma^2. $}
+Nuestra generalización consiste en suponer: 
+\begin{align*}
+    y_{contrafactico}=f\left(\left\{y_i|i\in d o n o r\ pool\right\}\right)+v\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (1)
+\end{align*}
+Donde {$ \mathbb{E}\left\{v\right\}=0 \ y \ Var\left(v\right)=\sigma^2. $}
+Es decir, suponemos que existe una función (no necesariamente lineal) que no esta sesgada.
+Entonces, nuestro trabajo va a consistir en buscar una estimación de {$f$}:
+\begin{align*}
+    {\hat{y}}_{contrafactico}=\hat{f}\left(\left\{y_i|i\in d o n o r\ pool\right\}\right)\ \ \ \ \ \ \ \ (2) 
+\end{align*}
+
+Por otro lado, el parámetro a estimar es el efecto de la adquisición de información nueva, más específicamente:
+\begin{align*}
+    \alpha=y_{contrafactico}-y_{real}\ \ \ \ \ \ \ \ \ \ (3)
+\end{align*}
+Por lo tanto, el estadístico a usar es: 
+\begin{align*}
+    \hat{\alpha}={\hat{y}}_{contrafactico}-y_{real}\ \ \ \ \ \ \ \ \ \ (4)
+\end{align*}
+Por lo tanto, ahora el sesgo de nuestra estimación es:
+\begin{align*}
+sesgo=\mathbb{E}\left\{\hat{\alpha}-\alpha\right\}
+\end{align*}
+Trabajando con (1), (2), (3) y (4), obtenemos:
+\begin{align*}
+sesgo=\mathbb{E}\left\{\hat{f}\right\}-f
+=BIAS\left\{\hat{f}\right\}
+\end{align*}
+
+Entonces el sesgo del estimador es el mismo que el del predictor, esto quiere decir que modelos de predicción con mucho sesgo van a transmitir su sesgo directamente hacia el estadístico, por experiencia, los modelos con mayor sesgo son los más simplistas (ejemplo, regresión lineal), esto quiere decir que el modelo de control sintético va a transmitir su sesgo directamente al estadístico en el momento en el que cambiamos a nuestros supuestos. 
+Teniendo en cuenta que estamos trabajando con un estimador sesgado, vamos a centrar nuestros esfuerzos en disminuir el error de estimación, es decir:
+\begin{align*}
+    error=\mathbb{E}\left\{\left(\hat{\alpha}-\alpha\right)^2\right\}
+\end{align*}
+Trabajando con (1), (2), (3), y (4), obtenemos:
+\begin{align*}
+    error=\left(\mathbb{E}\left\{\hat{f}\right\}-f\right)^2+\mathbb{E}\left\{\left(\mathbb{E}\left\{\hat{f}\right\}-\hat{f}\right)^2\right\}+\sigma^2
+\end{align*}
+Es decir, el problema de encontrar un buen estimador es análogo a resolver el bias-variance trade off:
+\begin{align*}
+    error={BIAS\left\{\hat{f}\right\}}^2+Var\left\{\hat{f}\right\}+\sigma^2
+\end{align*}
+Es por esta razón que optamos por usar modelos potencialmente más complejos.
+
+\subsection{Problemas de los modelos predictivos}
+Uno de los mayores problemas de este método es la replicabilidad de los resultados. Si Abadie ya estaba usando técnicas de cross validation para combatir el overfitting en un modelo lineal, es esperable que, al usar modelos no lineales, el termino de varianza sea tal {$ (Var\left\{\hat{f}\right\}) $} que los resultados no puedan pasar los tests de robustez.
+Por otro lado, los modelos no lineales siempre van a tener diferentes grados de interpretabilidad, pero en general, es muy difícil sacar conclusiones sobre su funcionamiento, esta propiedad les da el nombre en la jerga popular de ‘caja negra’.
+
+\subsection{Estimadores}
+Para poder aplicar los métodos de inferencia, vamos a definir específicamente los estimadores con los que vamos a trabajar.
+Primero obtenemos las predicciones del contrafactico para todo {$ t > T $} donde T es el punto de corte:
+\begin{align*}
+    {\hat{y}}_t^{CF}=\hat{f}\left(\left\{y_{i,t}|i\in d o n o r\ pool\right\}\right)
+\end{align*}
+Donde {${\hat{y}}_t^{CF}\ $} es la estimacion del contrafactico; luego obtenemos el efecto para cada {$ t > T $}:
+\begin{align*}
+    {\hat{\alpha}}_t={\hat{y}}_t^{CF}-y_t^{real}
+\end{align*}
+Como vimos en la seccion teorica, vamos a trabajar con el logaritmo de las diferencias:
+\begin{align*}
+    {lnDif}_t=ln\left({\hat{\alpha}}_t\right)
+\end{align*}
+Por lo que vimos en la seccion teorica, {$ {lnDif}_t $} tiene una forma lineal, entonces obtenemos su tendencia:
+\begin{align*}
+    {\vec{lnDif}}_{t,i}=\gamma_i+\beta_it
+\end{align*}
+Como vimos, {$ \beta_i $} es aproximadamente la tasa de descuento de la inundacion, y  {$ e^{\gamma_i} $} representa el salto discreto en t=0; sin embargo, no vamos a obtener los valores usando una regresion lineal contra el logaritmo, sino que vamos a calcular el mejor modelo del tipo  {$ \delta_ie^{\beta_it} $} que minimize el error cuadratico con respecto a la secuencia de  {$ {\hat{\alpha}}_t $}. En principio, los dos métodos parecen similares, sin embargo, cuando calculamos el error cuadrático del logaritmo de la variable, en realidad, estamos dándole mayor importancia a las diferencias de los valores mas pequeños, o, en otras palabras, con el método que vamos a usar, le damos mas importancia a los valores mas grandes. La razón de la toma de esta decisión es que, como vamos a ver con los intervalos de confianza, la varianza en la medición de  {$ {\hat{\alpha}}_t $} es razonablemente constante en el tiempo, y por lo tanto, se genera heterocedasticidad cuando usamos los logaritmos.
+
+
+Por último, definimos nuestro estimador:
+\begin{align*}
+    {\vec{v}}_i=\left[\begin{matrix}\delta_i\\\beta_i\\\end{matrix}\right]
+\end{align*}
+\pagebreak
+\section{Inferencia}
+\label{sec:Inferencia}
+
+En esta sección, vamos a adaptar el método de inferencia a nuestra elección de modelos de estimación de ‘caja negra’, siempre el objetivo en mente es obtener resultados de carácter cardinal, sin embargo, los métodos a usar van a ser una extensión de los métodos ordinales del paper Pooling Multiple Case Studies Using Synthetic Controls: An Application to Minimum Wage Policies\footnote{\url{http://ftp.iza.org/dp8944.pdf}}. 
+Como estadísticos, vamos a usar el estimador del efecto {$(\alpha_{t,i})$}, y su tendencia ({$\beta_i$}), y una estimación del cambio discreto de precios {$(\gamma_i)$}. Notar que en este caso, una unidad tratada es un municipio de Londres que se va a inundar en el futuro.
+
+\subsection{Método Principal}
+\subsubsection{}
+El test de hipótesis va a ser sobre la media del vector de descuento:
+\begin{align*}
+    {\vec{v}}_i=\left[\begin{matrix}\delta_i\\\beta_i\\\end{matrix}\right]
+\end{align*}
+
+Seguimos un método de inferencia basado en el test placebo de permutaciones donde, luego de estimar los {${\vec{v}}_i$} de cada unidad tratada, estimamos los {$ {\vec{v}}_i $} de las unidades pertenecientes a la donor pool para crear una distribución placebo del estadístico. La diferencia con el test de rangos de Arindrajit Dube y Ben Zipperer esta en que nosotros vamos a trabajar con los desvíos estándar en vez de los rangos, y por lo tanto, en vez de usar distribuciones uniformes, bajo hipótesis nula vamos a usar la estimación kernel de la densidad del conjunto {$ \{{\vec{v}}_i|i\in donor\ pool\} $}. A esta estimación la llamamos {$kdensity(\delta,\beta)$}, notar que usamos una estimación kernel de la densidad porque como estamos trabajando con inferencia cardinal, nos interesa extrapolar la kurtosis de la distribucion de placebos, es decir, al tener pocos datos en la donor pool, no conocemos bien el peso de las puntas de la distribucion. 
+
+El test de hipótesis es:
+\begin{align*}
+    H_0:{\vec{v}}_{tratados}={\vec{v}}_{placebos}
+    \\
+    H_1:{\vec{v}}_{tratados}>{\vec{v}}_{placebos}
+\end{align*}
+Donde:
+\begin{align*}
+    {\vec{v}}_{tratados}=\frac{1}{cardinal(tratados)}\sum_{i\in t r a t a d o s}{\vec{v}}_i
+    \\
+    {\vec{v}}_{placebos}=\frac{1}{cardinal(donor\ pool)}\sum_{i\in d o n o r\ pool}{\vec{v}}_i
+\end{align*}
+
+En este caso, un vector es mayor a otro cuando todos sus valores internos son mayores. 
+
+\subsubsection{Distribucion de las medias}
+
+La distribución del estadístico en cualquier estudio de control sintético es delicada, no tenemos tan pocos datos como para usar probabilidad bayesiana, pero tampoco tenemos tantos datos como para asumir una convergencia normal, para resolver este problema, Dube y Zipperer usan una distribución teórica de la media de los rangos (Irwin-Hall distribution), y eso es una ventaja de la inferencia ordinal, es mucho mas robusta; pero si tomamos a la variable aleatoria {$ {\vec{V}}_i $} como el descuento del estado tratado ‘i’ en el caso en el que no exista ningún efecto sobre este, entonces, bajo hipótesis nula, {$ {\vec{V}}_i $} se distribuye como {$ kdensity(\delta,\beta) $}. {$ kdensity(\delta,\beta) $} se centra en captar la incertidumbre que se deriva de la ignorancia sobre la capacidad del grupo de control para reproducir un contrafactico \footnote{Synthetic Control Methods for Comparative Case Studies: Estimating the Effect of California’s Tobacco Control Program}.
+
+Entonces, sabemos que, bajo hipótesis nula, {$ {\vec{v}}_i $} es una realización de {$ {\vec{V}}_i $}, por lo tanto, la distribución de {$ {\vec{v}}_{tratados} $} bajo hipótesis nula sigue la misma distribución que {$ \bar{V}\ $} donde:
+\begin{align*}
+    \bar{V}=\frac{1}{cardinalidad(tratados)}\sum_{j\in t r a t a d o s}{\ {\vec{V}}_j} 
+\end{align*}
+Notar que, bajo hipótesis nula, la adquisición de información no genera un efecto, por lo tanto, las distribuciones {$ \ {\vec{V}}_j $} son independientes, así que, si asumimos homogeneidad en las distribuciones placebo, la distribución de {$ \bar{V}\ $} convergería a una distribucion normal bivariada. Sin embargo, como solo tenemos 17 distritos tratados, vamos a usar una simulación Montecarlo para aproximar la distribucion de {$ \bar{V} $}.
+
+\subsection{Estimador de la diferencia y su inversión}
+Para obtener una distribución de probabilidad sobre los efectos del tratamiento, debemos recurrir a la probabilidad bayesiana.
+
+Aplicando los mismos conceptos, podemos obtener la distribución placebo de cada efecto {$ (\alpha_{j,t}) $} par cada momento t:
+\begin{align*}
+    {alpha\_acumulado}_{j,t}\left(x\right)=\frac{1}{O}\sum_{i\in d o n o r\ pool}\mathbf{1}_{\alpha_i\le x}
+\end{align*}
+Donde O es un numero tal que \texttt{alpha\_acumulado}  es una distribucion de probabilidad y {$ \mathbf{1}_{\alpha_i\le x} $} es una función indicadora. 
+Llamamos {$ k{alpha\_acumulado}_{j,t}\left(x\right) $} a la estimación kernel de {$ {alpha\_acumulado}_{j,t}\left(x\right) $}, sin embargo, en este caso, la interpretación de esta función acumulativa es diferente a la anterior, en este caso, sea {$ {\widetilde{\alpha}}_{j,t} $} la variable aleatoria que se distribuye como {$ {kalpha\_acumulado}_{j,t} $}, entonces, vamos a ver que la variable {$ {\hat{\alpha}}_{j,t}+{\widetilde{\alpha}}_{j,t} $} va a representar la distribucion de probabilidad de los efectos: 
+
+
+a. Como sabemos, la distribucion empirica {$ k{alpha\_acumulado}_{j,t}\left(x\right) $} capta la incertidumbre sobre la capacidad del conjunto del donor pool de reproducir un contrafactico, es decir, dado un contrafactico real {$ y^{CF} $}, la distribución de probabilidad de la estimación del contrafactico es:
+\begin{align*}
+    density\left({\hat{y}}^{CF}-y^{CF}\middle| y^{CF}\right)={density(alpha\_acumulado}_{j,t}\left({\hat{y}}^{CF}-y^{CF}\right))
+\end{align*}
+El grafico de esta ecuacion seria:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{infe/graff.png}
+\end{figure}
+
+En este caso, la linea negra vertical ubicada en x=1, representa el valor real de la unidad tratada {$ (y^{real}) $}, la linea vertical verde representa el contrafactico real de la unidad tratada {$ (y^{CF}) $}, la línea vertical azul representa la estimación del contrafactico obtenida por el modelo {$ ({\hat{y}}^{CF}) $}. Obviamente, si pudiéramos conocer {$y^{CF}$}, entonces el efecto real quedaría {$ \alpha=y^{CF}- y^{real} $}, pero los unicos datos que tenemos son {$ y^{real} $}, {$ {\hat{y}}^{CF}, y density\left({\hat{y}}^{CF}-y^{CF}\middle| y^{CF}\right) $}.  Notar que la densidad {$ ({density(kalpha\_acumulado}_{j,t}\left({\hat{y}}^{CF}-y^{CF}\right))) $} es la función de verosimilitud, por lo tanto, podemos aplicar la formula bayesiana:
+\begin{align*}
+    density\left(\alpha\middle|\hat{\alpha}\right)=\frac{density\left(\hat{\alpha}\middle|\alpha\right)priori(\alpha)}{constante}
+\end{align*}
+Ahora, nosotros conocemos  {$ density\left(\hat{\alpha}\middle|\alpha\right) $}, ya que, si conocemos  {$ y^{CF} $}, entonces conocemos  {$ \alpha=y^{CF}-y^{real} $}, y por lo tanto,  {$ density\left(\hat{\alpha}\middle|\alpha\right)=density\left({\hat{y}}^{CF}-y^{CF}\middle| y^{CF}\right) $}. Por otro lado, la constante es un numero que se encarga de normalizar la distribución.
+En último lugar, la distribución a priori es un tema que puede generar discusión, es decir, lo que vamos a usar nosotros es {$ priori\left(\alpha\right)=1 $} (notar que es una distribución impropia) porque a priori, creemos que el efecto puede estar en cualquier punto de la recta con probabilidad uniforme, sin embargo, proponemos una priori que puede ponderar diferentes grados de creencia intuitiva sobre el problema inicial. 
+
+\subsection{Test Final}
+
+Por ultimo vamos a realizar los tests de medias, pero usando los {$ {\vec{v}}_i $} ajustados, y siguiendo una interpretacion bayesiana sobre los resultados, es decir, en este caso la variable {$ {\vec{v}}_{tratados}+\bar{V} $} va a representar la distribucion de probabilidad de la media de {$ {\vec{v}}_i $}.
+\pagebreak
+\section{Resultados}
+\label{sec:Resultados}
+
+\subsection{Control Sintetico}
+
+En primer lugar, luego de quitar aquellos municipios que mediante control sintético no pueden replicarse de forma confiable, dada las restricciones que impone el mismo con respecto a la extrapolación, realizamos un histograma con la relación entre los errores post vs pre tratamiento. 
+Esto nos permite visualizar cuáles de los barrios testeados presentan cambios significativos luego del año de corte como se esperaría, entendiendo significativos como aquellos que se alejan ampliamente de la distribución de los placebos (que no deberían presentar un gran cambio en su variabilidad). 
+Como vemos, el caso emblemático es el de Hammersmith and Fulham, cuya ratio post/pre se encuentra en 45, y por lo tanto a 4.8 veces la media de la distribución de los placebos (media de placebos: 9.377,  desvío: 6.124). Esto otorga un alto grado de confianza en la predicción del barrio que se encontraría más afectado por la inundación y cuya dirección inferida mediante control sintético respalda. 
+Por otra parte, Richmond Upon Thames se encuentra a 4.42 veces la media de los placebos, Enfield a 3.17 veces. Todos ellos, se encuentran a más de 2 desvíos de la media de los placebos. Además, dentro de este grupo, todos presentan la dirección esperada, lo que brinda fortaleza a la hipótesis de que la expectativa de inundación está siendo incorporada por los agentes. Sin embargo, del grupo de tratados, tan sólo contamos con 3 de los 16 barrios, dado este nivel de robustez. Por otra lado, tan solo 8 de los 16 presentan una diferencia a la esperada por dicha hipótesis. 
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.7]{result/permu1.png}
+\caption*{Histograma de ratios de errores pre vs post tratamiento por grupo tratado vs control}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.7]{result/permu2.png}
+\caption*{Histograma de ratios de errores pre vs post tratamiento de cada barrio}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.7]{result/disp.png}
+\caption*{Gap entre el sintético y la serie real de la muestra de barrios  sin outsiders, donde aquellos tratados se presentan de color rojo, mientras que el grupo de control de color azul.}
+\end{figure}
+Para cada municipio se presentan dos gráficos que ilustran los resultados encontrados. Por un lado, comparamos las trayectorias de los precios de los inmuebles en relación a la unidad sintética placebo. El segundo gráfico consiste en la diferencia entre la unidad tratada (en nuestro caso, en riesgo de inundación) y la unidad sintética.
+
+\subsection{Caso Hammersmith and Fulham}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.3]{result/treatvssint Hammersmith and Fulham.jpg}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.2]{result/gap Hammersmith and Fulham.jpg}
+\end{figure}
+
+\subsection{Caso Lewisham}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.3]{result/treatvssint Lewisham.jpg}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.2]{result/gap Lewisham.jpg}
+\end{figure}
+
+\subsection{Caso Richmond upon Thames}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.3]{result/treatvssint Richmond upon Thames - copia.jpg}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.2]{result/gap Richmond upon Thames.jpg}
+\end{figure}
+\pagebreak
+\section{Resultados con Machine Learning}
+\label{sec:ResultadosML}
+
+\subsection{Comparación de modelos}
+\subsubsection{Control Sintético}
+Tal como se acostumbra en todo trabajo de machine learning, usamos el error del test set como punto de comparación entre los modelos. En este caso, el test set es el conjunto de placebos luego del punto de corte. Pero antes de hacer la comparación, vamos a filtrar los municipios outliers usando las predicciones del control sintético:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{result/errorsint.png}
+\caption{En este caso, los outliers son los municipios donde los precios de los inmuebles son mucho mayores (o mucho menores) a la media. error: 0.08311114586964855}
+\end{figure}
+
+A continuación, al deshacernos de los outliers señalados, compararemos los distintos modelos.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{result/sinterror2.png}
+\caption*{error: 0.005157038599079725}
+\end{figure}
+
+este gráfico es el análogo a los gráficos en los trabajos de control sintético. Las variables están normalizadas, y por lo tanto, el punto de corte es en -0.42. Notar que este es el mismo gráfico que el presentado en la introducción, pero en este caso usamos {$ \alpha =y^{CF}-y^{real} $} mientras que en ese caso usamos {$ \alpha =y^{CF}-y^{real} $} (y también se encuentra en otra escala de normalización).
+
+\subsubsection{Lazy ridge}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{result/lazy.png}
+\caption*{Error: 0.0029926219842486335}
+\end{figure}
+
+En primer lugar, queremos aclarar que este es un modelo lineal, el problema que estamos atacando en este caso, es el de la extrapolación; ahora pasamos a explicar el modelo {$ridge$} y luego el modelo {$lazy \ ridge$}:
+Como argumentamos en secciones anteriores, un potencial problema del control sintético es su imposibilidad para extrapolar resultados, lo que sucede es que como ya filtramos los outliers antes de comparar los modelos, entonces nos podemos permitir usar una ordenada al origen y pesos menores a 0 o mayores a 1, así que este modelo es una simple regresión lineal usando una variación del modelo {$ridge$} como regularización. 
+Con respecto a la regularización, el control sintético ya aplica regularización lasso cuando impone la restricción:
+\begin{align*}
+    \sum_{i\in p l a c e b o s}{weights}_i=1
+\end{align*}
+La diferencia con el modelo {$lasso$} estándar es que no usa ningún hiperparámetro, es decir, generalmente, se hace cross validation para encontrar el hiperparámetro  donde:
+\begin{align*}
+    \sum_{i\in p l a c e b o s}\left|{weights}_i\right|=\lambda
+\end{align*}
+Pero en el caso del control sintético, se usa {$\lambda=1$}, y también el módulo no es necesario porque ya sabemos que los pesos son mayores a 0.
+Por otro lado, nosotros decidimos usar el modelo  {$ridge$}. La idea principal es permitir mayor extrapolación, es decir, por el uso de módulos, el modelo lasso muchas veces genera resultados de esquina en los weights, pero como solo tenemos 10 placebos disponibles para crear el sintético, no podemos permitirnos perder información; si que en el caso del modelo  {$ridge$}, la restricción sobre los pesos es:
+\begin{align*}
+    \sum_{i\in p l a c e b o s}{{weights}_i}^2=\lambda
+\end{align*}
+Por último, el método típico es hacer una malla de hiperparametros sobre {$\lambda$}, y chequear cual es el  que minimiza el error de validación. Nosotros vamos a intentar evitar la creación de mallas de hiperparametros, ya que la cantidad de chequeos sobre el conjunto de validación crece exponencialmente con cada hiperparámetro nuevo que se agrega al modelo; por lo tanto inventamos un tipo de regularización que llamamos {$lazy \ ridge$} \footnote{inspirada en el paper Cyclical Learning Rates for Training Neural Networks de Leslie N. Smith }.
+
+En primer lugar definimos la regresión como si fuera una red neuronal sin hidden layer y sin activation function, y luego usamos {$stochastic \ gradient \ descent$} para obtener los pesos imponiendo un {$\lambda$}=0 (es decir, sin regularización), luego usamos SGD con un  {$\lambda$} alto, ejemplo {$\lambda=0.01$}, y por último volvemos a usar SGD con {$\lambda=0$}, sin embargo, en el último entrenamiento, usamos ‘early stopping’ para elegir el mejor modelo:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{result/iter.png}
+\caption{En nuestro caso, elegimos el modelo que se encuentra cerca de la iteración número 1000}
+\end{figure}
+
+La idea es usar el concepto de triangulación para replicar el sendero de expansión de los pesos generado por {$\lambda$}; en vez de ir paso a paso por el sendero de expansión, primero vamos a un punto donde sepamos que el modelo hace {$underfitting$}, y luego usamos SGD para llegar al punto donde se hace {$overfitting$}, en este caso, se recrea un sendero de expansión artificial.
+
+\subsubsection{Kernel Ridge}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{result/kernel.png}
+\caption*{Error: 0.0025659922177516}
+\end{figure}
+
+Con este modelo, intentamos solucionar el problema de la linealidad, es decir, utilizamos un modelo que usa una regresión lineal {$ridge$} pero en un espacio nuevo de features usando el {$kernel \  trick$} para generar un modelo no lineal. Todo este análisis hace posible disminuir la incertidumbre sobre la capacidad que tiene nuestro modelo para generar contrafácticos precisos sobre los distritos tratados. 
+
+Para hacer el test de hipótesis, vamos a usar los resultados del modelo {$lazy \ ridge$} ya que el cambio del error con respecto al modelo {$Kernel \ ridge$} es muy bajo, pero a la vez, (como es un modelo lineal) no presenta tantos problemas de varianza como el modelo más potente (si es que en un futuro se busca replicar los resultados).
+\subsection{Test de hipotesis}
+\subsubsection{Selección del modelo exponencial}
+Siguiendo los argumentos de la sección de inferencia, obtuvimos un intervalo de confianza sobre las predicciones del contrafáctico, los barrios tratados más significativos presentan un gran cambio:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.3]{result/wsband.png}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.3]{result/hfband.png}
+\end{figure}
+
+Por otro lado, los barrios que presentan un cambio negativo no tienen un efecto significativo:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.3]{result/lewband.png}
+\end{figure}
+
+Como se puede ver en estos gráficos, la varianza de la predicción a partir de 2008 se mantiene constante en el tiempo, esto quiere decir, que si tomamos estos resultados según la interpretación bayesiana (como una distribución de probabilidad), entonces el logaritmo de las diferencias va a presentar problemas de heterocedasticidad.
+Es por esto que directamente aproximamos un modelo exponencial sobre las diferencias:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{result/exp.png}
+\caption{Aproximación exponencial de la tendencia en Hammersmith and Fulham}
+\end{figure}
+
+La ventaja de este método es darle menos importancia al error cuadrático de las diferencias logarítmicas de los años donde el efecto no es apreciable, por lo tanto, el logaritmo del grafico anterior queda:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{result/lin.png}
+\end{figure}
+
+\subsubsection{Distribución de los parámetros tendenciales calculados}
+Una vez que calculamos las tendencias exponenciales de cada diferencia, obtenemos:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{result/calcparam.png}
+\end{figure}
+
+Es pertinente aclarar que multiplicamos por -1 los betas de los vectores donde delta es menor a cero, con esto logramos generar una pendiente negativa cuando los vectores se encuentran debajo del eje de las abscisas, y una pendiente positiva en el otro caso; notar que sigue siendo posible usar la densidad kernel porque a pesar de la transformación, la función sigue siendo continua.
+
+Antes de hacer el análisis formal, podemos observar que, como esperábamos, los valores de los placebos se encuentran cerca del eje. También podemos detectar la formación de 2 grupos diferentes dentro de los tratados, el primero tiene betas y deltas positivos y al parecer, significativos, y el segundo no tiene deltas significativos, pero tiene betas negativos y significativos.
+
+Como argumentamos en la sección de inferencia, vamos a obtener una estimación kernel de la distribución placebo de {${\vec{v}}_i$}, la selección del hiperparámetro ‘bandwidth’ la hicimos usando ‘cross validation’:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{result/meddistr.png}
+\end{figure}
+
+Por último, para obtener el p-valor, usamos un método Montecarlo para estimar la distribución de la media de los distritos tratados bajo hipótesis nula, es decir, bajo hipótesis nula, los {$v_i$} de los distritos tratados se distribuyen según la densidad del gráfico anterior, entonces simulamos 1000000 de medias y obtenemos un p-valor igual a 0.00016:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{result/test.png}
+\end{figure}
+
+Como podemos ver, el delta de los tratados es mayor, pero el beta es menor, esto se debe a la creación de estos dos grupos observada anteriormente donde un grupo tiene betas negativos y significativos; el hecho de que exista heterogeneidad en los resultados del análisis del control sintético es común, sin embargo, en nuestro caso, pudimos identificar estos dos grupos diferentes. Usando esta distribución sobre las medias, podemos obtener la distribución de probabilidad bayesiana sobre nuestra estimación de la media de los placebos:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{result/bay.png}
+\end{figure}
+
+Hicimos un corte al 95\% sobre la distribución de la variable aleatoria {$\vec{v_{tratados}}+\vec{V}$} para identificar nuestra seguridad sobre la estimación de la media. Podemos concluir que captamos un efecto generalizado en el aumento de las diferencias en los precios del corto plazo (delta) entre tratados y control, pero existen efectos heterogéneos en el largo plazo (beta).
+\pagebreak
+\section{Bibliografía}
+\label{sec:bib}
+
+\item Climate Central, Land projected to be below annual flood level in 2050, online [07/07/2021], \url{https://coastal.climatecentral.org/map/11/-0.0516/51.5343/?theme=sea_level_rise&map_type=coastal_dem_comparison&basemap=roadmap&contiguous=true&elevation_model=coastal_dem&forecast_year=2050&pathway=rcp45&percentile=p50&refresh=true&return_level=return_level_1&slr_model=kopp_2014}
+
+\item Cyclical Learning Rates for Training Neural Networks de Leslie N. Smith
+
+\item Synthetic Control Methods for Comparative Case Studies: Estimating the Effect of California’s Tobacco Control Program
+
+\item Pooling Multiple Case Studies Using Synthetic Controls: An Application to Minimum Wage Policies \url{http://ftp.iza.org/dp8944.pdf}
+
+\item Synthetic Control Methods for Comparative Case Studies: Estimating the Effect of California’s Tobacco Control Program. \url{https://economics.mit.edu/files/11859}
+
+\item \url{https://people.ischool.berkeley.edu/~hal/Papers/2013/ml.pdf} - Hal R. Varian - Big Data: New Tricks for Econometrics - June 2013
+
+\item Underwater assets? Real estate exposure to flood risk \url{https://www.msci.com/www/blog-posts/underwater-assets-real-estate/01593224766}
+
+\item Benjamin J. Keys y Philip Mulder Neglected No More: Housing Markets, Mortgage Lending, and Sea Level Rise
+
+\item Neglected No More: Housing Markets, Mortgage Lending, and Sea Level Rise de Benjamin J. Keys y Philip Mulder
+
+\item Gallup \breakurl{https://news.gallup.com/poll/234314/global-warming-age-gap-younger-americans-worried.aspx}
+
+\item Does Climate Change Affect Real Estate Prices? Only If You Believe In It [Baldauf et al.] \url{https://academic.oup.com/rfs/article-abstract/33/3/1256/5735306?redirectedFrom=fulltext}
+
+\item Rebecca K. Priestley, Zoë Heine, Taciano L. Milfont Public understanding of climate change-related sea-level rise. \url{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0254348}
+
+\item Calendar, C.S. The artificial production of carbon dioxide and its influence on temperature. \url{https://rmets.onlinelibrary.wiley.com/doi/abs/10.1002/qj.49706427503}
+
+\item Flooding in the future – predicting climate change, risks and responses in urban areas.	R.M. Ashley*, D.J. Balmforth**, A.J. Saul* and J.D. Blanskby*
+
+\item New data confirm increased frequency of extreme weather events: European national science academies urge further action on climate change adaptation." ScienceDaily, March 21, 2018. Citado por
+\url{https://www.msci.com/www/blog-posts/underwater-assets-real-estate/01593224766}
+
+\item Liam F. Beiser-McGrath,Thomas Bernauer. Current surveys may underestimate climate change skepticism evidence from list experiments in Germany and the USA.
+\url{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0251034}
+
+\end{document}
+
